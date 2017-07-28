@@ -2,6 +2,10 @@ var ClozeCard = require("./clozeCard.js");
 
 var inquirer = require("inquirer");
 
+var typeChosen
+
+var c
+
 var historyDeck = [
   {
     compText:"When Nazi Germany planned to invade the UK during WWII, Hitler name the planned invasion Operation Sealion",
@@ -55,8 +59,8 @@ var scienceDeck = [
     missingBit:"206"
   },
   {
-    compText:"The letters DNA stand for",
-    missingBit:"Deoxyribonucleic acid"
+    compText:"The letters DNA stand for Deoxyribonucleic Acid",
+    missingBit:"Deoxyribonucleic Acid"
   },
   {
     compText:"The chemical element Helium has the symbol He",
@@ -81,6 +85,8 @@ var scienceDeck = [
 ];
 
 function quizMe(){
+  typeChosen = "";
+  c = 0;
   inquirer.prompt([
     {
       type: "input",
@@ -93,19 +99,57 @@ function quizMe(){
       choices: ["history", "science"],
       name: "userChoice"
     }
-  ]).then(function(inquirerResponse.userChoice === "history"){
-    if (inquirerResponse.){
-      historyQ();
+  ]).then(function(inqRes){
+    if (inqRes.userChoice === "history"){
+      console.log(inqRes.username + ", you have chosen history");
+      typeChosen = "history";
+      createCards();
     } else {
-      scienceQ();
+      console.log(inqRes.username + ", you have chosen science");
+      typeChosen = "science";
+      createCards();
     }
-  });//-end of .then-
-}//-end of quizMe-
+  });//--.then--
+}//--quizMe--
 
-function historyQ(){
+function createCards(){
+  if (typeChosen === "history") {
+    if (c === historyDeck.length) {
+      console.log("That's All Folks!");
+      process.end;
+    } else {
+      var flashcard = new ClozeCard(historyDeck[c].compText, historyDeck[c].missingBit);
+      flashcard.replaceCloze();
+      displayCard(flashcard);
+    }
+  } else if (typeChosen === "science"){
+    if (c === scienceDeck.length) {
+      console.log("That's All Folks!");
+      process.end;
+    } else {
+      var flashcard = new ClozeCard(scienceDeck[c].compText, scienceDeck[c].missingBit);
+      flashcard.replaceCloze();
+      displayCard(flashcard);
+    }
+  }
+}//--createCards--
 
-}//-end of historyQ-
+function displayCard(flashcard){
+  inquirer.prompt([
+    {
+      type: "input",
+      message: flashcard.partialText,
+      name: "userAnswer"
+    }
+  ]).then(function(inqRes){
+    if (inqRes.userAnswer == flashcard.cloze) {
+      console.log("CORRECT!");
+    } else {
+      console.log("WRONG! The correct answer is: \n" + flashcard.cloze);
+    }
+    c++;
+    createCards();
+  });
+}//--displayCard--
 
-function scienceQ(){
-
-}//-end of scienceQ-
+quizMe();
